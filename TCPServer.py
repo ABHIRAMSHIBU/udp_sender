@@ -48,3 +48,5 @@ class tcpServer:
             handler=handlerList[handler]
         handler.stop()
         handlerList.pop(handlerList.index(handler))
+    def close(self):
+        self.s.close()

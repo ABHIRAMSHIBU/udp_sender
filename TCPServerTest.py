@@ -7,10 +7,11 @@ Created on Sun Dec 13 15:39:36 2020
 """
 
 import TCPServer
-ts = TCPServer.tcpServer()
-ts.start()
-u = ts.acceptConnection()
+ts=None
 try:
+    ts = TCPServer.tcpServer()
+    ts.start()
+    u = ts.acceptConnection()
     while(True):
         c=input("1) Check Available Data \n2) Read Available Data\n0) Exit\nenterchoice:")
         if (int(c)==1):
@@ -20,6 +21,9 @@ try:
         else:
             break
     u.stop()
+    ts.close()
 except KeyboardInterrupt:
     u.stop()
+    ts.close()
     print("Keyboard interrupt! Exiting")
+    

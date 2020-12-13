@@ -3,7 +3,7 @@ u=UDPServer.udp()
 u.recieve()
 try:
     while(True):
-        c=input("1 available \n2 read data\n0 exit\nenterchoice:")
+        c=input("1) Check Available Data \n2) Read Available Data\n0) Exit\nenterchoice:")
         if (int(c)==1):
             print(u.available())
         elif(int(c)==2):

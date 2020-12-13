@@ -7,7 +7,7 @@ Created on Mon Nov 30 19:20:03 2020
 
 Copyleft 2020 Project SSAL
 """
-class telnet:
+class tcpClient:
     '''This class is going to be an ascii interface layer of SSAL Test Suit'''
     def __init__(self,ip,port,timeout=0.5):
         from telnetlib import Telnet

@@ -6,7 +6,10 @@ class packect:
         for i in range (l):
            
             n.append(b"1011")
-            return n
+        data=b''
+        for i in n:
+            data+=i
+        return data
     def test(self):
         for i in range (1024*2*2,131030):
             

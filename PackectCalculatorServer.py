@@ -7,12 +7,11 @@ class packect:
         for i in range (l):
             print(b"1011")
             n.append(b"1011")
-        return n
-    def test(self):
-        for i in range (1024*2*2,131030):
-            i=i*2
-            self.generator(i)
-            #send&check
+        data=b''
+        for i in n:
+            data+=i
+        return data
+
             
 
 s=packect()

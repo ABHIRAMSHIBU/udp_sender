@@ -4,8 +4,5 @@ class udp:
         self.socket=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.UDP_PORT=UDP_PORT
         self.UDP_IP=UDP_IP
-
-        
-        
     def send(self,MESSAGE):
         self.socket.sendto(MESSAGE, (self.UDP_IP,self.UDP_PORT))

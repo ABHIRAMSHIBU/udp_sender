@@ -26,14 +26,14 @@ class Queue():
         if(self.isFull() != True):
             self.queue.insert(0, item)
         else:
-            print('Queue is Full!')
+            return -1 # Queue is FULL
 
     def dequeue(self):
         ''' This function removes an item from the front end of the queue '''
         if(self.isEmpty() != True):
             return self.queue.pop()
         else:
-            print('Queue is Empty!')
+            return None # Can't dequeue, Q empty
 
     def isEmpty(self):
         ''' This function checks if the queue is empty '''
@@ -41,7 +41,7 @@ class Queue():
 
     def isFull(self):
         ''' This function checks if the queue is full '''
-        if(self.NoLimit()):
+        if(self.NoLimit):
             return False
         else:
             return len(self.queue) == self.size
@@ -51,5 +51,5 @@ class Queue():
         if(self.isEmpty() != True):
             return self.queue[-1]
         else:
-            print('Queue is Empty!')
+            return None # Can't peek, Q empty
 

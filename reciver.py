@@ -6,12 +6,21 @@ Created on Sun Dec 13 22:11:47 2020
 @author: Abhiram Shibu
 @Co-author: Jerome Joseph
 """
-
+# GOLBAL IMPORTS
 import UDPServer
 import TCPServer
 import time
+from packetFactory import packetFactory
+# END GLOBAL IMPORTS
 
+# GLOBAL VARIABLES
+DELAY = 0.00005
+# END GLOBAL VARIABLES 
+
+
+# GLOBAL FUNCTIONS
 def argParse():
+    '''Parses arguments and returns a dictionary'''
     import sys
     argv = sys.argv
     args = {"tcpport":5006,"udpport":5005}
@@ -52,22 +61,34 @@ def generator(l):
         if(actual==l):
             break
     return n
+# END GLOBAL FUNCTIONS
+
 args=argParse()
 print(args)
+
+pf = packetFactory()
+
 us=UDPServer.udp(args["udpport"],"127.0.0.1")
 ts=TCPServer.tcpServer("127.0.0.1",args["tcpport"])
 ts.start()
 tcpclient = ts.acceptConnection()
 us.recieve()
-pattern=generator(10)
-data="Hello"
+
 while(True):
     while(us.available()==0):
-        time.sleep(0.05)
+        time.sleep(DELAY)
     data=us.read()
+    try:
+        sequence,data=pf.open(data)
+    except:
+        print("Error decoding packet")
+        tcpclient.send(b"NACK_"+str(None).encode()+b"\n")
+        continue
+    pattern=generator(len(data))
     if(data==pattern):
-        print("Perfect!")
+        print(pattern)
+        print("Perfect! Sequence number ",sequence)
         tcpclient.send(b"ACK_"+str(len(data)).encode()+b"\n")
     else:
-        print(b"NACK_"+str(len(data)).encode()+b"\n")
+        #print(b"NACK_"+str(len(data)).encode()+b"\n")
         tcpclient.send(b"NACK_"+str(len(data)).encode()+b"\n")

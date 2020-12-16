@@ -8,6 +8,8 @@ Created on Sun Dec 13 22:34:35 2020
 import time
 import UDPClient
 import TCPClient
+import json
+from packetFactory import packetFactory
 
 def argParse():
     import sys
@@ -59,24 +61,41 @@ def generator(l):
     return n
 args=argParse()
 print(args)
+pf = packetFactory()
 uc=UDPClient.udp(args["udpport"],args["ip"])
-pattern=generator(10)
+size=1
 tc=TCPClient.tcpClient(args["ip"],args["tcpport"])
-tc.asyncRead(delay=0.05)
+tc.asyncRead(delay=0.00005)
 try:
     while True:
-        print("Send")
-        uc.send(pattern)
-        counter=5
+        pattern=generator(size)
+        sequence,packet=pf.create(pattern)
+        print("Send packet with sequence number ",sequence)
+        uc.send(packet)
+        counter=100
         while tc.avilable()==0:
             counter-=1
             if(counter==0):
                 break
-            time.sleep(0.01)
+            time.sleep(0.00001)
         if(counter!=0):
-            print(tc.read())
+            result=tc.read().decode().strip()
+            print(result)
+            if("ACK" in result[:3]):
+                result=int(result.replace("ACK_",""))
+                if(result==size):
+                    print("Verified ",size)
+                    size+=1
+                else:
+                    print("Verification Failure")
+                    print(size)
+                    break
+            elif("NACK" in result[:4]):
+                print("Max Size is ",size-1)
+                break
+            print()
         else:
             print("Error")
-        time.sleep(0.05)
+        time.sleep(0.00005)
 except KeyboardInterrupt:
     pass

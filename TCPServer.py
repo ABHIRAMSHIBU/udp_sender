@@ -21,6 +21,8 @@ class tcpServerHandler:
         data=self.data
         self.data=b""
         return data
+    def send(self,data):
+        self.connection.send(data)
     def available(self):
         return len(self.data)
     def stop(self):

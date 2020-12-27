@@ -49,18 +49,10 @@ Example
     return args
 def generator(l):
     '''Returns length sized pattern'''
-    n=b""
-    basicBlock=b"1011"
-    for i in range(0,l,len(basicBlock)): # evade the use of costly modulo operator
-        actual=0
-        for j in range(len(basicBlock)):
-            actual=i+j
-            if(actual==l):
-                break
-            n+=basicBlock[j:j+1]
-        if(actual==l):
-            break
-    return n
+    import math
+    basicBlock = b"1011"
+    output = (basicBlock*math.ceil(l/len(basicBlock)))[:l]
+    return output
 # END GLOBAL FUNCTIONS
 
 args=argParse()

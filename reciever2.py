@@ -122,8 +122,8 @@ def md5SumRecv(args, chunksize, tcpclient):
         f.write(totalData)
         f.close()
     tcpclient.read()
-    #md5list=pickle.loads(totalData)
-    #return md5list
+    md5list=pickle.loads(totalData)
+    return md5list
 
 args = argParse()
 print(args)

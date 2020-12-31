@@ -9,7 +9,7 @@ Copyleft 2020 Project SSAL
 """
 class tcpClient:
     '''This class is going to be an ascii interface layer of SSAL Test Suit'''
-    def __init__(self,ip,port,timeout=0.5):
+    def __init__(self,ip,port,timeout=5):
         from telnetlib import Telnet
         self.telnet=Telnet(host=ip,port=port,timeout=timeout)
         self.ip=ip
@@ -18,7 +18,7 @@ class tcpClient:
         self.data=b""
     def send(self,data):
         '''Will raise Broken pipe error if connection closed, otherwise will send ascii data over telnet'''
-        self.telnet.write(data.encode())
+        self.telnet.write(data)
     def sendLine(self,data):
         '''Will raise Broken pipe error if connection closed, otherwise will send ascii data new line terminated over telnet'''
         self.telnet.write((data+"\n").encode())

@@ -17,6 +17,8 @@ class tcpServerHandler:
                     pass
         self.t=Thread(target=run)
         self.t.start()
+    def readKeep(self):
+        return self.data
     def read(self):
         data=self.data
         self.data=b""

@@ -4,19 +4,21 @@ from threading import Thread
 
 
 def doAction(data, action):
-    if type(data) is type(b""):
-        data = data.decode()
+    if type(data) is type(""):
+        data = data.encode()
     if action is None:
         return False
     else:
         if action == 1:
-            if "Hello" in data:
+            if b"Hello" in data:
                 print("Hello was found")
+                return True
             else:
                 print("Hello was not found")
+                return False
         else:
             if action is not None:
-                action(data)
+                return action(data)
 
         return True
 
@@ -28,20 +30,22 @@ class ncTCPServer:
         self.t = Thread(target=self.watchForData)
         self.action = None
         self.run = True
+        self.z = b""
         self.port = port
         self.start()
-
 
     def watchForData(self):
         count = 0
         try:
             while self.run:
-                z = self.process.stdout.readline()
-                if z:
+                old = self.z
+                self.z += self.process.stdout.read(1)
+                if old != self.z:
                     if self.action is not None:
-                        doAction(z, self.action)
-                        self.action = None
-                    print("Got message", count, z)
+                        if doAction(self.z, self.action):
+                            self.z=b""
+                            self.action = None
+                    print("Got message", count, self.z)
                 else:
                     break
                 count += 1
@@ -61,6 +65,7 @@ class ncTCPServer:
 
     def write(self, data):
         self.process.stdin.write(data)
+        self.process.stdin.flush()
 
     def test(self):
         if self.process.poll() is None:
@@ -71,7 +76,3 @@ class ncTCPServer:
     def setAction(self, action):
         self.action = action
 
-
-ncTS = ncTCPServer()
-ncTS.action = 1
-ncTS.join()

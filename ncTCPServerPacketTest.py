@@ -8,7 +8,7 @@ def useData(data, name):
     print("Got data as ", data)
     if data == b"Hello\n":
         print("Send Hello to server")
-        ncTS.write(b"18:E:Hello from server!\n")
+        ncTS.write(packetCreate(b"Hello From Server!"))
     if name is not None:
         print("Got name as", name)
 
@@ -35,6 +35,16 @@ def packetCheck(data):
             return True
     return False
 
+def packetCreate(data,name=None):
+    packet = str(len(data)).encode()
+    packet += b":"
+    if(name!=None):
+        packet += name
+        packet += b":"
+    packet += b"E:"
+    packet += data
+    packet += b"\n"
+    return packet
 
 ncTS = ncTCPServer()
 ncTS.action = packetCheck

@@ -25,6 +25,12 @@ def doAction(data, action):
 
 class ncTCPServer:
     def __init__(self, port=5006):
+        import os
+        if os.path.exists("/usr/bin/nc") is not True:
+            print("Warning: NETCAT binary not found in usual place, if not there in your ENVIRONMENT, things are "
+                  "going to go sideways!")
+        else:
+            print("MESSAGE: Found netcat binary at /usr/bin/nc, continuing with ENVIRONMENT Path.")
         # GLOBAL VARIABLES
         self.process = sp.Popen("nc -lp " + str(port), shell=True, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
         self.t = Thread(target=self.watchForData)
@@ -42,9 +48,12 @@ class ncTCPServer:
                 self.z += self.process.stdout.read(1)
                 if old != self.z:
                     if self.action is not None:
-                        if doAction(self.z, self.action):
+                        returnValue = doAction(self.z, self.action)
+                        if returnValue is True:
                             self.z=b""
                             self.action = None
+                        elif returnValue is None:
+                            self.z=b""
                     print("Got message", count, self.z)
                 else:
                     break
@@ -76,3 +85,5 @@ class ncTCPServer:
     def setAction(self, action):
         self.action = action
 
+    def stop(self):
+        self.run=False

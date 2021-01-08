@@ -55,7 +55,7 @@ class ncTCPClient:
                             self.action = None
                         elif returnValue is None:
                             self.z = b""
-                    print("Got message", count, self.z)
+                    # print("Got message", count, self.z)
                 else:
                     break
                 count += 1
@@ -87,4 +87,5 @@ class ncTCPClient:
         self.action = action
 
     def stop(self):
-        self.run=False
+        self.run = False
+        self.process.stdin.close()

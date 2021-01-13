@@ -103,7 +103,7 @@ if "recived" not in os.listdir():
 fname = args["file"].split("/")[-1]
 
 
-ncTC = ncTCPClient()
+ncTC = ncTCPClient(args["tcpport"])
 time.sleep(0.5)
 ncTC.action = packetCheck
 #data=open("testfiles/test.png","rb").read()

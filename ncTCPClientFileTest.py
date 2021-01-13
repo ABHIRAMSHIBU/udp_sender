@@ -1,5 +1,6 @@
 from ncTCPClient import ncTCPClient
 import time
+import os
 
 extracted = None
 
@@ -94,6 +95,9 @@ Example
 
 args = argParse()
 print(args)
+
+if "recived" not in os.listdir():
+    os.mkdir("recived")
 
 #Determining file name
 fname = args["file"].split("/")[-1]

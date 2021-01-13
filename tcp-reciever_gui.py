@@ -10,6 +10,38 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import os
+import asyncio
+from threading import Thread
+
+from PyQt5.QtCore import QRunnable, pyqtSlot, QThreadPool, QObject, QThread
+
+
+class Worker(QObject):
+    '''
+    Worker thread
+    '''
+
+    def setAction(self,function):
+        self.exec = function
+
+
+    def run(self):
+        self.exec()
+
+class readProcess:
+    def __init__(self, process, exec):
+        self.p = process
+        self.exec = exec
+        self.t = Thread(target=self.executionStub)
+        self.t.start()
+
+    def executionStub(self):
+        p = self.p
+        while (True):
+            line = p.readline()
+            if (not line):
+                break
+            self.exec(line)
 
 
 class Ui_Dialog(object):
@@ -70,14 +102,13 @@ class Ui_Dialog(object):
         self.pushButton_2.setFont(font)
         self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton_2.clicked.connect(self.portOpener)
-        self.pushButton_2.clicked.connect(self.passSender)
+        #self.pushButton_2.clicked.connect(self.passSender)
         self.textBrowser = QtWidgets.QTextBrowser(Dialog)
         self.textBrowser.setGeometry(QtCore.QRect(90, 110, 381, 192))
         font = QtGui.QFont()
         font.setFamily("Source Code Pro")
         self.textBrowser.setFont(font)
         self.textBrowser.setObjectName("textBrowser")
-
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
@@ -90,19 +121,43 @@ class Ui_Dialog(object):
         self.label_4.setText(_translate("Dialog", "Port:"))
         self.pushButton_2.setText(_translate("Dialog", "Send"))
 
-    def passSender(self):
-        filedata=self.lineEdit.text()
+
+    def runner(self):
+        self.server = os.popen("python ncTCPServerFileTest.py")
+        filedata = self.lineEdit.text()
+        if not filedata:
+            filedata = "testfiles/test.png"
         if self.lineEdit_3.text() == "":
-            port=5006
+            port = 5006
         else:
-            port=int(self.lineEdit_3.text())
-        os.system("python ncTCPClientFileTest.py --file {0} --tp {1}".format(filedata,port))
+            port = int(self.lineEdit_3.text())
+        self.client = os.system("python ncTCPClientFileTest.py --file {0} --tp {1}&".format(filedata, port))
+        exec = lambda data: self.textBrowser.setPlainText(self.textBrowser.toPlainText()+data)
+        while (True):
+            line = self.server.readline()
+            if (not line):
+                break
+            exec(line)
+
 
     def portOpener(self):
-        os.system("python ncTCPServerFileTest.py&")
+        self.thread = QThread()
+        self.worker = Worker()
+        self.worker.setAction(self.runner)
+        self.thread.started.connect(self.worker.run)
+        self.thread.start()
+        #self.runner()
+        #worker = Worker()
+        #worker.setAction(self.runner)
+        #self.threadpool.start(worker)
+
+
+        # serverReader  = readProcess(self.server,exec)
+
 
 if __name__ == "__main__":
     import sys
+
     app = QtWidgets.QApplication(sys.argv)
     Dialog = QtWidgets.QDialog()
     ui = Ui_Dialog()

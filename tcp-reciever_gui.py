@@ -89,7 +89,11 @@ class Ui_Dialog(object):
 
     def passSender(self):
         filedata=self.lineEdit.text()
-        os.system("python ncTCPClientFileTest.py --file {0}".format(filedata))
+        if self.lineEdit_3.text() == "":
+            port=5006
+        else:
+            port=int(self.lineEdit_3.text())
+        os.system("python ncTCPClientFileTest.py --file {0} --tp {1}".format(filedata,port))
 
     def portOpener(self):
         os.system("python ncTCPServerFileTest.py&")

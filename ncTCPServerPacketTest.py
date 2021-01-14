@@ -41,6 +41,9 @@ def packetCheck(data):
             if useData(extracted, name):
                 return None
             return True
+        else:
+            print(size - recivedLength - 1)
+            return size - recivedLength - 1
     return False
 
 

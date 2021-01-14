@@ -53,7 +53,7 @@ def useData(data, name):
     fdir=args["dir"]
     if(fdir[-1]!="/"):
         fdir+="/"
-    print("Got data as ", data)
+    #print("Got data as ", data)
     if name:
         if os.path.exists(fdir):
             if not os.path.isdir(fdir):
@@ -104,6 +104,11 @@ def packetCheck(data):
             if useData(extracted, name):
                 return None
             return True
+        else:
+            #print(size - recivedLength + 1)
+
+            chunksize=min(int((size - recivedLength + 1)/2),min(max(4096,int(size/20))),200000000)
+            return chunksize
     return False
 
 

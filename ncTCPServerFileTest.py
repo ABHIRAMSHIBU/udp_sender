@@ -1,19 +1,73 @@
 from ncTCPServer import ncTCPServer
-import time
+import time,os
 
 extracted = None
 
+def argParse():
+    import sys
+    argv = sys.argv
+    args = {"tcpport": 5006, "udpport": 5005, "ip": "127.0.0.1", "dir": "recived/"}
+    for i in range(len(argv)):
+        if (i == 0):
+            continue
+        if ((argv[i] == "--tcpport") or (argv[i] == "-tp")):
+            try:
+                args["tcpport"] = int(argv[i + 1])
+            except IndexError:
+                print("Catastrophic Failure, please give tcp port")
+                exit(-1)
+        elif ((argv[i] == "--udpport") or (argv[i] == "-up")):
+            try:
+                args["udpport"] = int(argv[i + 1])
+            except IndexError:
+                print("Catastrophic Failure, please give udp port")
+                exit(-1)
+        elif ((argv[i] == "--host") or (argv[i] == "-h")):
+            try:
+                args["ip"] = int(argv[i + 1])
+            except IndexError:
+                print("Catastrophic Failure, please give udp port")
+                exit(-1)
+        elif ((argv[i] == "--dir") or (argv[i] == "-d")):
+            try:
+                args["dir"] = str(argv[i + 1])
+            except IndexError:
+                print("Catastrophic Failure, please give udp port")
+                exit(-1)
+        elif ((argv[i] == "--help") or (argv[i] == "-h")):
+            print('''UDP Sender Alpha V1.0
+    -tp or --tcpport is used to set tcp port
+    -up or --udpport is used to set udp port
+    -h  or --host    is used to set host ip
+    -d  or --dir    is used to set the recieve directory
+Example
+    ''' + argv[0] + ''' -tp 5006 -up 5005 -h 192.168.1.2''')
+            exit(0)
+    return args
+
+args = argParse()
+print(args)
 
 def useData(data, name):
+    global args
+    fdir=args["dir"]
+    if(fdir[-1]!="/"):
+        fdir+="/"
     print("Got data as ", data)
     if name:
-        f=open("recived/"+name.decode(),"wb")
+        if os.path.exists(fdir):
+            if not os.path.isdir(fdir):
+                print("ERROR: Path specified is a file!")
+                exit(-1)
+        else:
+            os.mkdir(fdir)
+        f = open(fdir + name.decode(), "wb")
         f.write(data[:-1])
         f.close()
-        print("Success.. Recived file",name)
+        print("Success.. Recived file", name)
         ncTS.write(packetCreate(b"OK"))
         ncTS.stop()
-        exit(1)
+        exit(0)
     # if data == b"Hello\n":
     #     print("Send Hello to client")
     #     ncTS.write(packetCreate(b"Hello From Server!"))
@@ -63,52 +117,6 @@ def packetCreate(data, name=None):
     packet += data
     packet += b"\n"
     return packet
-
-def argParse():
-    import sys
-    argv = sys.argv
-    args = {"tcpport": 5006, "udpport": 5005, "ip": "127.0.0.1", "file": "testfiles/test.png"}
-    for i in range(len(argv)):
-        if (i == 0):
-            continue
-        if ((argv[i] == "--tcpport") or (argv[i] == "-tp")):
-            try:
-                args["tcpport"] = int(argv[i + 1])
-            except IndexError:
-                print("Catastrophic Failure, please give tcp port")
-                exit(-1)
-        elif ((argv[i] == "--udpport") or (argv[i] == "-up")):
-            try:
-                args["udpport"] = int(argv[i + 1])
-            except IndexError:
-                print("Catastrophic Failure, please give udp port")
-                exit(-1)
-        elif ((argv[i] == "--host") or (argv[i] == "-h")):
-            try:
-                args["ip"] = int(argv[i + 1])
-            except IndexError:
-                print("Catastrophic Failure, please give udp port")
-                exit(-1)
-        elif ((argv[i] == "--file") or (argv[i] == "-f")):
-            try:
-                args["file"] = str(argv[i + 1])
-            except IndexError:
-                print("Catastrophic Failure, please give udp port")
-                exit(-1)
-        elif ((argv[i] == "--help") or (argv[i] == "-h")):
-            print('''UDP Sender Alpha V1.0
-    -tp or --tcpport is used to set tcp port
-    -up or --udpport is used to set udp port
-    -h  or --host    is used to set host ip
-    -f  or --file    is used to set which file to send
-Example
-    ''' + argv[0] + ''' -tp 5006 -up 5005 -h 192.168.1.2''')
-            exit(0)
-    return args
-
-
-args = argParse()
-print(args)
 
 ncTS = ncTCPServer(args["tcpport"])
 print("Started server...")

@@ -36,6 +36,7 @@ class ncTCPServer:
         self.t = Thread(target=self.watchForData)
         self.action = None
         self.run = True
+        self.chunkSize = None
         self.z = b""
         self.port = port
         self.start()
@@ -45,7 +46,11 @@ class ncTCPServer:
         try:
             while self.run:
                 old = self.z
-                self.z += self.process.stdout.read(1)
+                if self.chunkSize:
+                    self.z += self.process.stdout.read(self.chunkSize)
+                    self.chunkSize=None
+                else:
+                    self.z += self.process.stdout.read(1)
                 if old != self.z:
                     if self.action is not None:
                         returnValue = doAction(self.z, self.action)
@@ -54,6 +59,8 @@ class ncTCPServer:
                             self.action = None
                         elif returnValue is None:
                             self.z=b""
+                        elif type(returnValue) is type(1): # This is a integer value which we got
+                            self.chunkSize=returnValue
                     #print("Got message", count, self.z)
                 else:
                     break

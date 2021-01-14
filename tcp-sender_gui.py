@@ -148,7 +148,7 @@ class Ui_Dialog(object):
         if not hostip:
             hostip = "127.0.0.1"
         #self.client = os.system(")
-        self.client = os.popen("python ncTCPClientFileTest.py --file {0} --tp {1} --host {2}".format(filedata, port, hostip))
+        self.client = os.popen("python ncTCPClientFileTest.py --file {0} -tp {1} --host {2}".format(filedata, port, hostip))
         exec = lambda data: self.textBrowser.setPlainText(self.textBrowser.toPlainText()+data)
         while (True):
             line = self.client.readline()

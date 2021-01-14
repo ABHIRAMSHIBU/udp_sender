@@ -46,6 +46,7 @@ class readProcess:
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
+        self.flag=True
         Dialog.setObjectName("Dialog")
         Dialog.resize(567, 582)
         self.label = QtWidgets.QLabel(Dialog)
@@ -70,7 +71,7 @@ class Ui_Dialog(object):
         self.lineEdit.setGeometry(QtCore.QRect(130, 370, 271, 28))
         self.lineEdit.setObjectName("lineEdit")
         pwd = os.getcwd().replace(" ", "\ ")
-        self.lineEdit.setText(pwd + "/testfiles/test.png")
+        self.lineEdit.setText(pwd + "/recived/")
         self.label_2 = QtWidgets.QLabel(Dialog)
         self.label_2.setGeometry(QtCore.QRect(90, 369, 41, 31))
         font = QtGui.QFont()
@@ -114,24 +115,23 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "UDP Sender"))
-        self.label.setText(_translate("Dialog", "UDP Reciever"))
+        Dialog.setWindowTitle(_translate("Dialog", "TCP Sender"))
+        self.label.setText(_translate("Dialog", "TCP Reciever"))
         self.pushButton.setText(_translate("Dialog", "Browse"))
-        self.label_2.setText(_translate("Dialog", "File:"))
+        self.label_2.setText(_translate("Dialog", "Dir:"))
         self.label_4.setText(_translate("Dialog", "Port:"))
-        self.pushButton_2.setText(_translate("Dialog", "Send"))
+        self.pushButton_2.setText(_translate("Dialog", "Recieve"))
 
 
     def runner(self):
-        self.server = os.popen("python ncTCPServerFileTest.py")
-        filedata = self.lineEdit.text()
-        if not filedata:
-            filedata = "testfiles/test.png"
+        dirdata = self.lineEdit.text()
+        if not dirdata:
+            dirdata = "recived"
         if self.lineEdit_3.text() == "":
             port = 5006
         else:
             port = int(self.lineEdit_3.text())
-        self.client = os.system("python ncTCPClientFileTest.py --file {0} --tp {1}&".format(filedata, port))
+        self.server = os.popen("python ncTCPServerFileTest.py -tp "+str(port)+" "+"--dir "+str(dirdata)+"&")
         exec = lambda data: self.textBrowser.setPlainText(self.textBrowser.toPlainText()+data)
         while (True):
             line = self.server.readline()
@@ -141,11 +141,16 @@ class Ui_Dialog(object):
 
 
     def portOpener(self):
-        self.thread = QThread()
-        self.worker = Worker()
-        self.worker.setAction(self.runner)
-        self.thread.started.connect(self.worker.run)
-        self.thread.start()
+        if self.flag:
+            self.thread = QThread()
+            self.worker = Worker()
+            self.worker.setAction(self.runner)
+            self.thread.started.connect(self.worker.run)
+            self.thread.start()
+            self.pushButton_2.setText("Close")
+            self.flag=False
+        else:
+            exit(0)
         #self.runner()
         #worker = Worker()
         #worker.setAction(self.runner)

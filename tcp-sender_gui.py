@@ -48,6 +48,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(567, 629)
+        self.flag=True
         self.label = QtWidgets.QLabel(Dialog)
         self.label.setGeometry(QtCore.QRect(210, 20, 131, 31))
         font = QtGui.QFont()
@@ -136,7 +137,6 @@ class Ui_Dialog(object):
 
 
     def runner(self):
-        self.server = os.popen("python ncTCPServerFileTest.py")
         filedata = self.lineEdit.text()
         hostip = self.lineEdit_2.text()
         if not filedata:
@@ -147,26 +147,30 @@ class Ui_Dialog(object):
             port = int(self.lineEdit_3.text())
         if not hostip:
             hostip = "127.0.0.1"
-        self.client = os.system("python ncTCPClientFileTest.py --file {0} --tp {1} --host {2}&".format(filedata, port, hostip))
+        #self.client = os.system(")
+        self.client = os.popen("python ncTCPClientFileTest.py --file {0} --tp {1} --host {2}".format(filedata, port, hostip))
         exec = lambda data: self.textBrowser.setPlainText(self.textBrowser.toPlainText()+data)
         while (True):
-            line = self.server.readline()
+            line = self.client.readline()
             if (not line):
                 break
             exec(line)
 
-
     def portOpener(self):
-        self.thread = QThread()
-        self.worker = Worker()
-        self.worker.setAction(self.runner)
-        self.thread.started.connect(self.worker.run)
-        self.thread.start()
-        #self.runner()
-        #worker = Worker()
-        #worker.setAction(self.runner)
-        #self.threadpool.start(worker)
-
+        if self.flag:
+            self.thread = QThread()
+            self.worker = Worker()
+            self.worker.setAction(self.runner)
+            self.thread.started.connect(self.worker.run)
+            self.thread.start()
+            self.pushButton_2.setText("Close")
+            self.flag = False
+        else:
+            exit(0)
+        # self.runner()
+        # worker = Worker()
+        # worker.setAction(self.runner)
+        # self.threadpool.start(worker)
 
         # serverReader  = readProcess(self.server,exec)
 

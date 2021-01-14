@@ -86,5 +86,8 @@ class ncTCPServer:
         self.action = action
 
     def stop(self):
+        import time
         self.run = False
         self.process.stdin.close()
+        time.sleep(0.1)
+        self.process.kill()

@@ -71,7 +71,7 @@ def argParse():
                 exit(-1)
         elif ((argv[i] == "--host") or (argv[i] == "-h")):
             try:
-                args["ip"] = int(argv[i + 1])
+                args["ip"] = str(argv[i + 1])
             except IndexError:
                 print("Catastrophic Failure, please give udp port")
                 exit(-1)
@@ -103,7 +103,7 @@ if "recived" not in os.listdir():
 fname = args["file"].split("/")[-1]
 
 
-ncTC = ncTCPClient(args["tcpport"])
+ncTC = ncTCPClient(port=args["tcpport"], ip=args["ip"])
 time.sleep(0.5)
 ncTC.action = packetCheck
 #data=open("testfiles/test.png","rb").read()

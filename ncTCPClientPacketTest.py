@@ -52,9 +52,11 @@ def packetCreate(data, name=None):
     packet += b"\n"
     return packet
 
-
-ncTC = ncTCPClient()
-time.sleep(0.5)
-ncTC.action = packetCheck
-ncTC.write(packetCreate(b"Hello"))
-ncTC.join()
+try:
+    ncTC = ncTCPClient()
+    time.sleep(0.5)
+    ncTC.action = packetCheck
+    ncTC.write(packetCreate(b"Hello"))
+    ncTC.join()
+except BrokenPipeError:
+    print("Server is not running!")

@@ -102,12 +102,14 @@ if "recived" not in os.listdir():
 #Determining file name
 fname = args["file"].split("/")[-1]
 
-
-ncTC = ncTCPClient(port=args["tcpport"], ip=args["ip"])
-time.sleep(0.5)
-ncTC.action = packetCheck
-#data=open("testfiles/test.png","rb").read()
-data=open(args["file"],"rb").read()
-ncTC.write(packetCreate(data,fname))
-print("Send file as ",fname)
-ncTC.join()
+try:
+    ncTC = ncTCPClient(port=args["tcpport"], ip=args["ip"])
+    time.sleep(0.5)
+    ncTC.action = packetCheck
+    #data=open("testfiles/test.png","rb").read()
+    data=open(args["file"],"rb").read()
+    ncTC.write(packetCreate(data,fname))
+    print("Send file as ",fname)
+    ncTC.join()
+except BrokenPipeError:
+    print("Server is not running!")

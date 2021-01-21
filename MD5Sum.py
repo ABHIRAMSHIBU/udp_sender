@@ -24,7 +24,7 @@ class CheckSum:
         return md5_hash.hexdigest()
 
     def verify_md5(self, hash):
-        if hash == CheckSum.get_md5(self.data):
+        if hash == CheckSum.get_md5(self):
             return True
         else:
             return False

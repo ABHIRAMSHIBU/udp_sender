@@ -6,6 +6,7 @@ from packetFactory import packetFactory
 import json
 
 # This is the client because its the sender.
+index = 0
 
 def argParse():
     import sys
@@ -55,16 +56,41 @@ print(args)
 
 
 def useData(data, name):
+    global index
     print("Got data as ", data)
+    node = tree.getNode(index)
+    sequence, packet = pf.create(node)
+    #print(node)
+    packet = node
     if data == b"OK\n":
+        index+=1
         print("Got OK from server!")
         ncUC.write(packetCreate(packet, name=str(sequence)))
-        print(packet)
+        #print(packet)
+        return True
+    elif data == b"ACK\n":
+        index+=1
+        print("Got ACK from server!")
+        ncUC.write(packetCreate(packet, name=str(sequence)))
+        #print(packet)
+        return True
+    elif data == b"NACK\n":
+        node = tree.getNode(index-1)
+        sequence, packet = pf.create(node)
+        #print(node)
+        packet = node
+        print("Got NACK from server!")
+        ncUC.write(packetCreate(packet, name=str(sequence)))
+        #print(packet)
         return True
     elif data == b"DONE\n":
         print("Got DONE from server!")
+        ncTC.write(b"DONE")
+        ncUC.write(b"DONE")
         ncTC.stop()
         ncUC.stop()
+        ncTC.process.kill()
+        ncUC.process.kill()
         return False
     if name is not None:
         print("Got name as", name)
@@ -110,18 +136,17 @@ ncUC = ncUDPClient(port=args["udpport"], ip=args["ip"])
 ncTC = ncTCPClient(port=args["tcpport"], ip=args["ip"])
 ncTC.setAction(packetCheck)
 # Need to get file as hash
-chunksize = 10
+chunksize = 1000
 fh = FileHash(chunksize, args["file"], generate=True)
 pf = packetFactory()
 # Generate tree from file
 tree = fileTree(args["file"],chunksize)
 # print(fh.MD5) # MD5 Sum is OK
-
+MD5 = fh.MD5
+MD5.append(args["file"][args["file"].rindex("/")+1:])
 # Send hash
 ncTC.write(packetCreate(json.dumps(fh.MD5).encode(),"MD5"))
-node=tree.getNode(0)
-sequence,packet=pf.create(node)
-print(node)
+
 #ncUC.write(packetCreate(packet,name=str(sequence)))
 # Kill all connections just for now..
 # ncUC.stop()

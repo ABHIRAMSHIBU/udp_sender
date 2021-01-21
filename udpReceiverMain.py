@@ -7,6 +7,7 @@ from packetFactory import packetFactory
 from MD5Sum import CheckSum
 # This is the server because it is going to receive the file bring send.
 MD5=None
+index=0
 def argParse():
     import sys
     argv = sys.argv
@@ -48,10 +49,12 @@ Example
     ''' + argv[0] + ''' -tp 5006 -up 5005 -h 192.168.1.2''')
             exit(0)
     return args
-
+outputFile = open("/tmp/test.png", "wb")
 def useData(data, name):
     global args
     global MD5
+    global index
+    global outputFile
     fdir=args["dir"]
     if(fdir[-1]!="/"):
         fdir+="/"
@@ -74,26 +77,32 @@ def useData(data, name):
         print("Got data!")
         MD5=json.loads(data)
         ncTS.write(packetCreate(b"OK"))
+        outputFile=open(fdir+MD5.pop(-1),"wb")
         # ncTS.stop()
         # exit(0)
     else:
         print("Got some other thing!")
         print(name)
-        data=packetFactory.open(None, data)
-        print(data[1])
-        cs=CheckSum(data[1])
-        if(cs.verify_md5(MD5[0])):
+        #print(data[:-1])
+        cs=CheckSum(data[:-1])
+        if(cs.verify_md5(MD5[index][0])):
             print("MD5 OK!")
+            ncTS.write(packetCreate(b"ACK"))
+            outputFile.write(data[:-1])
+            index+=1
+            if(index==len(MD5)):
+                ncTS.write(packetCreate(b"DONE"))
+                ncUS.write(packetCreate(b"DONE"))
+                ncTS.stop()
+                ncUS.stop()
+                ncTS.process.kill()
+                ncUS.process.kill()
+                outputFile.close()
+                exit(0)
         else:
             print("MD5 Failed verification!")
-
-        ncTS.write(packetCreate(b"DONE"))
-        ncUS.write(packetCreate(b"DONE"))
-        ncTS.stop()
-        ncUS.stop()
-        ncTS.process.kill()
-        ncUS.process.kill()
-        exit(0)
+            ncTS.write(packetCreate(b"NACK"))
+        return True
 
 
 

@@ -107,7 +107,7 @@ def packetCheck(data):
         else:
             #print(size - recivedLength + 1)
 
-            chunksize=min(int((size - recivedLength + 1)/2),min(max(4096,int(size/20))),200000000)
+            chunksize=min(int((size - recivedLength + 1)/2),min(max(4096,int(size/20)),200000000))
             return chunksize
     return False
 

@@ -1,5 +1,5 @@
 class fileTree:
-    def __int__(self, file, chunksize, read=True):
+    def __init__(self, file, chunksize, read=True):
         self.filename = file
         if (read):
             self.file = open(file, "rb")

@@ -57,21 +57,21 @@ print(args)
 
 def useData(data, name):
     global index
-    print("Got data as ", data)
+    #print("Got data as ", data)
     node = tree.getNode(index)
-    sequence, packet = pf.create(node)
+    #sequence, packet = pf.create(node)
     #print(node)
     packet = node
     if data == b"OK\n":
         index+=1
-        print("Got OK from server!")
-        ncUC.write(packetCreate(packet, name=str(sequence)))
+        print("OK",index-1)
+        ncUC.write(packetCreate(packet, name=str(index-1)))
         #print(packet)
         return True
     elif data == b"ACK\n":
         index+=1
-        print("Got ACK from server!")
-        ncUC.write(packetCreate(packet, name=str(sequence)))
+        print("ACK",index-1)
+        ncUC.write(packetCreate(packet, name=str(index-1)))
         #print(packet)
         return True
     elif data == b"NACK\n":
@@ -79,8 +79,8 @@ def useData(data, name):
         sequence, packet = pf.create(node)
         #print(node)
         packet = node
-        print("Got NACK from server!")
-        ncUC.write(packetCreate(packet, name=str(sequence)))
+        print("NACK",index-1)
+        ncUC.write(packetCreate(packet, name=str(index-1)))
         #print(packet)
         return True
     elif data == b"DONE\n":

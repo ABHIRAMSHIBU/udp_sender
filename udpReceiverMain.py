@@ -3,11 +3,16 @@ from ncUDPServer import ncUDPServer
 from time import sleep
 from signal import signal
 import json
+from threading import Semaphore
 from packetFactory import packetFactory
 from MD5Sum import CheckSum
+from Queue import Queue
 # This is the server because it is going to receive the file bring send.
 MD5=None
+OLDMD5=[]
 index=0
+totalSize = 0
+semaphore = Semaphore(1)
 def argParse():
     import sys
     argv = sys.argv
@@ -55,6 +60,8 @@ def useData(data, name):
     global MD5
     global index
     global outputFile
+    global totalSize
+    semaphore.acquire()
     fdir=args["dir"]
     if(fdir[-1]!="/"):
         fdir+="/"
@@ -74,23 +81,31 @@ def useData(data, name):
     #     ncUS.stop()
     #     exit(0)
     if(name==b"MD5"):
-        print("Got data!")
+        print("In:MD5")
         MD5=json.loads(data)
         ncTS.write(packetCreate(b"OK"))
         outputFile=open(fdir+MD5.pop(-1),"wb")
+        Q = Queue()
+        totalSize = len(MD5)
+        while(len(MD5)):
+            Q.enqueue(MD5.pop(0)[0])
+        MD5=Q
+        #print("MD5 is now a Q")
         # ncTS.stop()
         # exit(0)
     else:
-        print("Got some other thing!")
-        print(name)
+        print("In:DP")
+        #print(name)
         #print(data[:-1])
         cs=CheckSum(data[:-1])
-        if(cs.verify_md5(MD5[index][0])):
-            print("MD5 OK!")
+        nodeMD5 = MD5.dequeue()
+        OLDMD5.append(nodeMD5)
+        if(cs.verify_md5(nodeMD5)):
+            #print("MD5 OK!")
             ncTS.write(packetCreate(b"ACK"))
             outputFile.write(data[:-1])
             index+=1
-            if(index==len(MD5)):
+            if(index==totalSize):
                 ncTS.write(packetCreate(b"DONE"))
                 ncUS.write(packetCreate(b"DONE"))
                 ncTS.stop()
@@ -100,9 +115,11 @@ def useData(data, name):
                 outputFile.close()
                 exit(0)
         else:
-            print("MD5 Failed verification!")
+            #print("MD5 Failed verification!")
             ncTS.write(packetCreate(b"NACK"))
-        return True
+            exit(0)
+    semaphore.release()
+    return True
 
 
 

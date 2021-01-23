@@ -8,6 +8,7 @@ from packetFactory import packetFactory
 from MD5Sum import CheckSum
 from Queue import Queue
 # This is the server because it is going to receive the file bring send.
+RECVALL=True # True means it will receive all packets...
 MD5=None
 OLDMD5=[]
 index=0
@@ -83,7 +84,10 @@ def useData(data, name):
     if(name==b"MD5"):
         print("In:MD5")
         MD5=json.loads(data)
-        ncTS.write(packetCreate(b"OK"))
+        if(RECVALL==True):
+            ncTS.write(packetCreate(b"SNDALL"))
+        else:
+            ncTS.write(packetCreate(b"OK"))
         outputFile=open(fdir+MD5.pop(-1),"wb")
         Q = Queue()
         totalSize = len(MD5)
@@ -102,7 +106,8 @@ def useData(data, name):
         OLDMD5.append(nodeMD5)
         if(cs.verify_md5(nodeMD5)):
             #print("MD5 OK!")
-            ncTS.write(packetCreate(b"ACK"))
+            if(not RECVALL):
+                ncTS.write(packetCreate(b"ACK"))
             outputFile.write(data[:-1])
             index+=1
             if(index==totalSize):
@@ -116,7 +121,7 @@ def useData(data, name):
                 exit(0)
         else:
             #print("MD5 Failed verification!")
-            ncTS.write(packetCreate(b"NACK"))
+            ncTS.write(packetCreate(b"NACK",index))
             exit(0)
     semaphore.release()
     return True

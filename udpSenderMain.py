@@ -68,6 +68,19 @@ def useData(data, name):
         ncUC.write(packetCreate(packet, name=str(index-1)))
         #print(packet)
         return True
+    elif data == b"SNDALL\n":
+        print("SENDING ALL")
+        for i in range(len(MD5)-1):
+            try:
+                packet = tree.getNode(i)
+                ncUC.write(packetCreate(packet,name=str(i)))
+                if(i%10==0):
+                    import time
+                    time.sleep(0.001)
+            except Exception as e:
+                print(i)
+                raise e
+        return True
     elif data == b"ACK\n":
         index+=1
         print("ACK",index-1)

@@ -131,7 +131,7 @@ class Ui_Dialog(object):
             port = 5006
         else:
             port = int(self.lineEdit_3.text())
-        self.server = os.popen("python ncUDPServerFileTest.py -up "+str(port)+" "+"--dir "+str(dirdata)+"&")
+        self.server = os.popen("python udpReceiverMain.py -up "+str(port)+" "+"--dir "+str(dirdata)+"&")
         exec = lambda data: self.textBrowser.setPlainText(self.textBrowser.toPlainText()+data)
         while (True):
             line = self.server.readline()
